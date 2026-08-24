@@ -271,7 +271,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☐ | 20 Aug | Dev | Identity | `A7` **Application gating** — refuse token issuance for an application with no grant; `app` claim; route check | H | 4 | The "web but not mobile" requirement, enforced at issuance rather than in the UI. |
 | ◐ | 20 Aug | Dev - RS | Foundation | `F5` **Scope context** — PLATFORM→UNIT + application; switcher; **scope in every query key**; invalidate on switch | H | 4 | A cache surviving a scope switch shows another company's data. |
 | ☐ | 21 Aug | Dev | Identity | `A8` **Effective-access resolver** — union for permissions, most-specific-wins for settings, deny beats both | H | 4 | The union/most-specific split is the subtle part. |
-| ☐ | 21 Aug | Dev | Foundation | `F7` **Shared UI primitives** — page header, empty state, stat tile, scope badge, confirm dialog, drawer, illustration slot | M | 4 | Into `packages/react`, not `apps/web`. |
+| ◐ | 21 Aug | Dev - RS | Foundation | `F7` **Shared UI primitives** — page header, empty state, stat tile, scope badge, confirm dialog, drawer, illustration slot | M | 4 | Into `packages/react`, not `apps/web`. |
 | ☐ | 21 Aug | Dev | Foundation | `F4` **Model & hook conventions** — extend the integration standard; scaffold script; scope-aware query-key helper | L | 3 | Land before others write API files. |
 
 ### W2 — Identity & access · 24–28 Aug
