@@ -3688,7 +3688,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td><code>F2</code> <strong>App shell</strong> — sidebar, top bar, ⌘K palette, breadcrumbs; <strong>nav hides on missing permission</strong></td>
 <td>M</td>
 <td>4</td>
-<td>Mount <code>TenantSwitcher</code> here — built last session, not yet placed.</td>
+<td>Mounted <code>TenantSwitcher</code> here, later superseded in place by <code>F5</code>'s <code>ScopeSwitcher</code>.</td>
 </tr>
 <tr>
 <td>☐</td>
@@ -3701,7 +3701,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The "web but not mobile" requirement, enforced at issuance rather than in the UI.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>20 Aug</td>
 <td>Dev - RS</td>
 <td>Foundation</td>
@@ -5654,6 +5654,18 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td>Claude</td>
 <td><strong>Cascaded themes and audited colors.</strong> Replaced over 90 light-only tailwind styles with F1 design tokens (<code>bg-surface</code>, <code>bg-surface-subtle</code>, <code>text-foreground</code>, <code>border-border</code>, etc.) across sidebar, app layouts, headers, tables, and settings pages (Company Details, Sites, Users). Configured dynamic theme <code>FormsProvider</code> overrides to automatically style protected forms and calculator wizards for dark/light modes.</td>
 <td>Verified live in browser: theme toggle switches correctly.</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td>Claude</td>
+<td><strong><code>F5</code> Scope context merged to <code>development</code>.</strong> <code>ScopeProvider</code> (tenant/company/branch — industry/unit modeled but have no backend data source yet, <code>me/scopes</code> stops at branch), <code>useScope()</code>, <code>ScopeSwitcher</code> mounted in <code>AppHeader</code> in place of <code>TenantSwitcher</code> (deleted — confirmed by grep that <code>F3</code>'s diagnostics code never referenced it directly, so this was not a breaking removal). Every scope transition clears the whole query cache (<code>queryClient.clear()</code>, not <code>invalidateQueries()</code> — a stale entry would otherwise keep serving under the new scope's heading); <code>scopeQueryKey()</code> added as the minimal stand-in for the not-yet-built <code>F4</code> key-folding helper, not yet adopted by any real query key.</td>
+<td>431 tests green (2 new). Live-verified with <code>F2</code>'s shell and <code>F3</code>'s diagnostics both mounted — no console errors beyond the expected no-backend network noise in local dev.</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td>Claude</td>
+<td><strong><code>ScopeProvider</code> mounted inside <code>AuthProvider</code>, alongside <code>F3</code>'s <code>DiagnosticsProvider</code></strong> — neither depends on the other. <strong>PR review fix:</strong> a single switcher action changing tenant, company and branch together could call <code>queryClient.clear()</code> up to three times. Not an actual race (no <code>await</code> sits between the calls, so nothing can refetch in between) but still redundant — added an opt-in <code>skipClear</code> to <code>switchCompany</code>/<code>switchBranch</code> so a composed action clears exactly once.</td>
+<td>Covered by new tests asserting exact clear-call counts, not just that a clear eventually happens.</td>
 </tr>
 </tbody>
 </table>
