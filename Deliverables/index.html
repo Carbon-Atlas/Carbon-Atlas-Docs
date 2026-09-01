@@ -3661,7 +3661,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Everything else consumes this. Never define a colour only inside a media query.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>19 Aug</td>
 <td>Dev-AG</td>
 <td>Foundation</td>
@@ -3681,7 +3681,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The spine of W2. See <a href="../IDENTITY-AND-SCOPE/">IDENTITY-AND-SCOPE.md</a>.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>20 Aug</td>
 <td>Dev - VR</td>
 <td>Foundation</td>
@@ -3731,9 +3731,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Into <code>packages/react</code>, not <code>apps/web</code>.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>21 Aug</td>
-<td>Dev</td>
+<td>Dev - AG</td>
 <td>Foundation</td>
 <td><code>F4</code> <strong>Model &amp; hook conventions</strong> — extend the integration standard; scaffold script; scope-aware query-key helper</td>
 <td>L</td>
@@ -3779,9 +3779,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Follow the UDF definition-delete pattern.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>24 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
 <td>RBAC</td>
 <td><code>A11</code> <strong>Permission catalogue UI</strong> — resource/action tree, route rules, search; platform rows read-only <em>with a reason</em></td>
 <td>M</td>
@@ -5642,6 +5642,18 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td>Claude</td>
 <td>Wired F1's density tokens where they exactly matched (shared <code>Button</code> default + shared text input, both 36px = <code>--control-height-md</code>). Everything else measured close-but-not-exact — left alone, documented in root <code>CLAUDE.md</code> for F2/F7.</td>
 <td>Verified via pixel measurement before/after — unchanged. 255 tests green.</td>
+</tr>
+<tr>
+<td>2026-08-25</td>
+<td>Claude</td>
+<td><strong>F2 App shell completed.</strong> Sidebar with grouped collapsible accordions, responsive framework, dynamic breadcrumbs, user profile chevron dropdown, ⌘K command palette, and mounted <code>TenantSwitcher</code>. Gated navigation link visibility with permissions via auth context <code>effectivePermissions</code> check.</td>
+<td>Webapp builds warning-clean. All 90 unit tests green, and e2e playwright suites pass.</td>
+</tr>
+<tr>
+<td>2026-08-25</td>
+<td>Claude</td>
+<td><strong>Cascaded themes and audited colors.</strong> Replaced over 90 light-only tailwind styles with F1 design tokens (<code>bg-surface</code>, <code>bg-surface-subtle</code>, <code>text-foreground</code>, <code>border-border</code>, etc.) across sidebar, app layouts, headers, tables, and settings pages (Company Details, Sites, Users). Configured dynamic theme <code>FormsProvider</code> overrides to automatically style protected forms and calculator wizards for dark/light modes.</td>
+<td>Verified live in browser: theme toggle switches correctly.</td>
 </tr>
 </tbody>
 </table>
