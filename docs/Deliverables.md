@@ -281,7 +281,8 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☐ | Date | Dev | Module | Task & subtasks | Cx | Hrs | Comments |
 |---|---|---|---|---|---|---|---|
 | ☐ | 24 Aug | Dev | Auth | `A9` **Tenant & company chooser** — post-login selection when membership spans several; skip when there is one | M | 4 | `/auth/tenants` and `/auth/context/switch` exist. This is the screen. |
-| ☐ | 24 Aug | Dev | RBAC | `A10` **Roles UI** — list, create, edit, clone, scope badge; delete refused while assigned, with the list shown | M | 4 | Follow the UDF definition-delete pattern. |
+| ◐ | 24 Aug | Dev - VR | RBAC | `A11` **Permission catalogue UI** — resource/action tree, route rules, search; platform rows read-only *with a reason* | M | 4 | |
+|  | 24 Aug | Dev - AG | RBAC | `A10` **Roles UI** — list, create, edit, clone, scope badge; delete refused while assigned, with the list shown | M | 4 | Follow the UDF definition-delete pattern. |
 | ◐ | 24 Aug | Dev - VR | RBAC | `A11` **Permission catalogue UI** — resource/action tree, route rules, search; platform rows read-only *with a reason* | M | 4 | |
 | ☐ | 25 Aug | Dev | Identity | `A12` **Membership management UI** — grant access at any level, for named applications, with validity dates | H | 4 | The screen the whole identity model exists for. |
 | ☐ | 25 Aug | Dev | RBAC | `A13` **Role→permission matrix** — bulk toggle, inherited vs explicit, **diff before save** | H | 4 | A matrix saved blind is how privilege creeps. |
