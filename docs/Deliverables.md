@@ -267,6 +267,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☑ | 19 Aug | Dev - RS | Foundation | `F1` **Design tokens & theme** — light/dark triple definition; brand scale; density; motion under `prefers-reduced-motion` | M | 4 | Everything else consumes this. Never define a colour only inside a media query. |
 | ☑ | 19 Aug | Dev-AG | Foundation | `F3` **Error handling & diagnostics** — error boundary; 403/404/500; diagnostic report with **recursive redaction** | H | 4 | A diagnostic shipping a token or PII is a breach, not a feature. |
 | ◐ | 19 Aug | Dev - VR | Identity | `A6` **Membership grant model (backend)** — one grant table; scope columns, application, validity, grant type, descendants | H | 4 | The spine of W2. See [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md). |
+| ☐ | 28 Aug | Dev | Identity | `A6b` **Remove deprecated `TenantAccess` & `TenantUserRole` (cleanup)** — remove dual-writes, seeders, and drop legacy tables | M | 3 | **Execute only after all readers/services switch to Grant.** Keep dual-writes until reader dependencies are removed. |
 | ☑ | 20 Aug | Dev - VR | Foundation | `F2` **App shell** — sidebar, top bar, ⌘K palette, breadcrumbs; **nav hides on missing permission** | M | 4 | Mounted `TenantSwitcher` here, later superseded in place by `F5`'s `ScopeSwitcher`. |
 | ◐ | 20 Aug | Dev - AG | Identity | `A7` **Application gating** — refuse token issuance for an application with no grant; `app` claim; route check | H | 4 | The "web but not mobile" requirement, enforced at issuance rather than in the UI. |
 | ☑ | 20 Aug | Dev - RS | Foundation | `F5` **Scope context** — PLATFORM→UNIT + application; switcher; **scope in every query key**; invalidate on switch | H | 4 | A cache surviving a scope switch shows another company's data. |
@@ -586,6 +587,16 @@ Every prompt inherits these **standing rules** — repeat them if the agent drif
 > tenant-level grants and `TenantUserRole` to scoped ones, with `applicationId` null so existing
 > behaviour is preserved exactly. Add endpoints for listing and managing grants. Test the four Ace
 > users resolve to the same effective access before and after the migration.
+
+### A6b — Remove deprecated `TenantAccess` and `TenantUserRole` (cleanup)
+
+> Remove the legacy `TenantAccess` (in `al.auth`) and `TenantUserRole` (in `al.master`) tables, entities,
+> seeders and dual-writes introduced during the `A6` migration cutover window. **Do this only once all
+> readers and downstream services have completely switched to `Grant` / `RegistryDbContext.Grants`**.
+> Remove `_userRoleRepo` dual-writes in `MasterGovernanceService` and `OnboardingOrchestrator`, remove
+> `_accessRepo` from `AuthAppService` / `AuthEndpoints`, delete the entity definitions and `DbSet`s, drop
+> the tables via EF migrations in both services, and update the test fixtures. Preserve existing
+> resolution behaviour identically.
 
 ### A7 — Application gating
 
