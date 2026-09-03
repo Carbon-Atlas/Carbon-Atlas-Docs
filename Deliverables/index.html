@@ -808,6 +808,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#a6b-remove-deprecated-tenantaccess-and-tenantuserrole-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A6b — Remove deprecated TenantAccess and TenantUserRole (cleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#a7-application-gating" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2255,6 +2266,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#a6b-remove-deprecated-tenantaccess-and-tenantuserrole-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A6b — Remove deprecated TenantAccess and TenantUserRole (cleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#a7-application-gating" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3661,7 +3683,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Everything else consumes this. Never define a colour only inside a media query.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>19 Aug</td>
 <td>Dev-AG</td>
 <td>Foundation</td>
@@ -3681,6 +3703,16 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The spine of W2. See <a href="../IDENTITY-AND-SCOPE/">IDENTITY-AND-SCOPE.md</a>.</td>
 </tr>
 <tr>
+<td>☐</td>
+<td>28 Aug</td>
+<td>Dev</td>
+<td>Identity</td>
+<td><code>A6b</code> <strong>Remove deprecated <code>TenantAccess</code> &amp; <code>TenantUserRole</code> (cleanup)</strong> — remove dual-writes, seeders, and drop legacy tables</td>
+<td>M</td>
+<td>3</td>
+<td><strong>Execute only after all readers/services switch to Grant.</strong> Keep dual-writes until reader dependencies are removed.</td>
+</tr>
+<tr>
 <td>☑</td>
 <td>20 Aug</td>
 <td>Dev - VR</td>
@@ -3691,9 +3723,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Mounted <code>TenantSwitcher</code> here, later superseded in place by <code>F5</code>'s <code>ScopeSwitcher</code>.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>20 Aug</td>
-<td>Dev</td>
+<td>Dev - AG</td>
 <td>Identity</td>
 <td><code>A7</code> <strong>Application gating</strong> — refuse token issuance for an application with no grant; <code>app</code> claim; route check</td>
 <td>H</td>
@@ -3721,7 +3753,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The union/most-specific split is the subtle part.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>21 Aug</td>
 <td>Dev - RS</td>
 <td>Foundation</td>
@@ -3769,9 +3801,19 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td><code>/auth/tenants</code> and <code>/auth/context/switch</code> exist. This is the screen.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>24 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
+<td>RBAC</td>
+<td><code>A11</code> <strong>Permission catalogue UI</strong> — resource/action tree, route rules, search; platform rows read-only <em>with a reason</em></td>
+<td>M</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>◐</td>
+<td>24 Aug</td>
+<td>Dev - AG</td>
 <td>RBAC</td>
 <td><code>A10</code> <strong>Roles UI</strong> — list, create, edit, clone, scope badge; delete refused while assigned, with the list shown</td>
 <td>M</td>
@@ -4881,6 +4923,16 @@ tenant-level grants and <code>TenantUserRole</code> to scoped ones, with <code>a
 behaviour is preserved exactly. Add endpoints for listing and managing grants. Test the four Ace
 users resolve to the same effective access before and after the migration.</p>
 </blockquote>
+<h3 id="a6b-remove-deprecated-tenantaccess-and-tenantuserrole-cleanup">A6b — Remove deprecated <code>TenantAccess</code> and <code>TenantUserRole</code> (cleanup)</h3>
+<blockquote>
+<p>Remove the legacy <code>TenantAccess</code> (in <code>al.auth</code>) and <code>TenantUserRole</code> (in <code>al.master</code>) tables, entities,
+seeders and dual-writes introduced during the <code>A6</code> migration cutover window. <strong>Do this only once all
+readers and downstream services have completely switched to <code>Grant</code> / <code>RegistryDbContext.Grants</code></strong>.
+Remove <code>_userRoleRepo</code> dual-writes in <code>MasterGovernanceService</code> and <code>OnboardingOrchestrator</code>, remove
+<code>_accessRepo</code> from <code>AuthAppService</code> / <code>AuthEndpoints</code>, delete the entity definitions and <code>DbSet</code>s, drop
+the tables via EF migrations in both services, and update the test fixtures. Preserve existing
+resolution behaviour identically.</p>
+</blockquote>
 <h3 id="a7-application-gating">A7 — Application gating</h3>
 <blockquote>
 <p>Enforce per-application access in <code>al.auth</code>. A user holding no grant for an application must
@@ -5666,6 +5718,18 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td>Claude</td>
 <td><strong><code>ScopeProvider</code> mounted inside <code>AuthProvider</code>, alongside <code>F3</code>'s <code>DiagnosticsProvider</code></strong> — neither depends on the other. <strong>PR review fix:</strong> a single switcher action changing tenant, company and branch together could call <code>queryClient.clear()</code> up to three times. Not an actual race (no <code>await</code> sits between the calls, so nothing can refetch in between) but still redundant — added an opt-in <code>skipClear</code> to <code>switchCompany</code>/<code>switchBranch</code> so a composed action clears exactly once.</td>
 <td>Covered by new tests asserting exact clear-call counts, not just that a clear eventually happens.</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td>Claude</td>
+<td><strong><code>F7</code> Shared UI primitives merged to <code>development</code>.</strong> Seven components in <code>packages/react/src/shared/</code> — <code>PageHeader</code>, <code>EmptyState</code>, <code>StatTile</code>, <code>ScopeBadge</code>, <code>ConfirmDialog</code>, <code>Drawer</code>, <code>IllustrationSlot</code> — all theme-token driven, all responsive, none fetching data. 36 tests, including the required <code>EmptyState</code> filtered-versus-genuinely-empty distinction. <code>README.md</code> documents the real constraints: no shared <code>Button</code> to build on (<code>packages/react</code> can't depend on <code>apps/web</code>, so action slots take a plain <code>ReactNode</code>), <code>ScopeBadge</code> deliberately decoupled from <code>F5</code>'s types. Real bug found and fixed: <code>Drawer</code> and the pre-existing <code>datagrid</code> package both used <code>animate-in</code>/<code>slide-in-from-*</code> Tailwind classes that produce <strong>no actual CSS anywhere in the project</strong> (no plugin, no keyframes) — replaced with real <code>transition-transform</code> driven by <code>F1</code>'s motion tokens, verified live via computed style.</td>
+<td>255+ tests green. Verified live in both themes and at mobile width.</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td>Claude</td>
+<td><strong>Consumed in the app, not just built.</strong> <code>PageHeader</code> replaced ad-hoc headers on Downloads/Bulk import/Import review; <code>EmptyState</code> on Downloads/Bulk import/Team table; <code>ConfirmDialog</code> replaced the <code>datagrid</code> package's hand-rolled <code>DataGridConfirmDialog</code> on the two real delete flows (Users management, Sites management); <code>StatTile</code> widened to full <code>MetricCard</code> parity (<code>subtitle</code>/<code>accentColor</code>/<code>iconBgColor</code>/<code>changeTone</code>/<code>changeCaption</code>, <code>value</code> accepting any <code>ReactNode</code> for an animated counter) and is now the only card on the Dashboard — <code>MetricCard</code> deleted, it had exactly one consumer. <code>Drawer</code> and <code>ScopeBadge</code> deliberately left unconsumed — no screen needs a side panel yet, and <code>ScopeBadge</code> has no natural home in <code>F5</code>'s tree-style <code>ScopeSwitcher</code> without redesigning it.</td>
+<td>Live-verified in both themes; full recursive test suite green with no regressions in <code>F2</code>/<code>F3</code>/<code>F5</code>.</td>
 </tr>
 </tbody>
 </table>
