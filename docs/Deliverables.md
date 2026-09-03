@@ -266,8 +266,8 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 |---|---|---|---|---|---|---|---|
 | ☑ | 19 Aug | Dev - RS | Foundation | `F1` **Design tokens & theme** — light/dark triple definition; brand scale; density; motion under `prefers-reduced-motion` | M | 4 | Everything else consumes this. Never define a colour only inside a media query. |
 | ☑ | 19 Aug | Dev-AG | Foundation | `F3` **Error handling & diagnostics** — error boundary; 403/404/500; diagnostic report with **recursive redaction** | H | 4 | A diagnostic shipping a token or PII is a breach, not a feature. |
-| ◐ | 19 Aug | Dev - VR | Identity | `A6` **Membership grant model (backend)** — one grant table; scope columns, application, validity, grant type, descendants | H | 4 | The spine of W2. See [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md). |
-| ☐ | 28 Aug | Dev | Identity | `A6b` **Remove deprecated `TenantAccess` & `TenantUserRole` (cleanup)** — remove dual-writes, seeders, and drop legacy tables | M | 3 | **Execute only after all readers/services switch to Grant.** Keep dual-writes until reader dependencies are removed. |
+| ☑ | 19 Aug | Dev - VR | Identity | `A6` **Membership grant model (backend)** — one grant table; scope columns, application, validity, grant type, descendants | H | 4 | The spine of W2. See [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md). Dual-writing to legacy tables; **cleanup pending in `A6b` backlog**. |
+| ☐ | 28 Aug | Dev | Identity | `A6b` **Remove deprecated `TenantAccess` & `TenantUserRole` (cleanup backlog)** — remove dual-writes, seeders, and drop legacy tables | M | 3 | **Cleanup pending / backlog**: Execute only after all readers/services switch to Grant. Keep dual-writes until reader dependencies are removed. |
 | ☑ | 20 Aug | Dev - VR | Foundation | `F2` **App shell** — sidebar, top bar, ⌘K palette, breadcrumbs; **nav hides on missing permission** | M | 4 | Mounted `TenantSwitcher` here, later superseded in place by `F5`'s `ScopeSwitcher`. |
 | ◐ | 20 Aug | Dev - AG | Identity | `A7` **Application gating** — refuse token issuance for an application with no grant; `app` claim; route check | H | 4 | The "web but not mobile" requirement, enforced at issuance rather than in the UI. |
 | ☑ | 20 Aug | Dev - RS | Foundation | `F5` **Scope context** — PLATFORM→UNIT + application; switcher; **scope in every query key**; invalidate on switch | H | 4 | A cache surviving a scope switch shows another company's data. |
@@ -427,7 +427,7 @@ What the roadmap creates, so a reviewer can see the shape before it exists.
 
 ```
 al.net.entities/Master/UnitCatalog.cs                       T1
-al.net.entities/Identity/Grant.cs                           A6
+al.net.entities/Master/Grant.cs                             A6
 al.net.payments/                                            C8   ← new package
   Abstractions/IPaymentProvider.cs
   Services/PaymentService.cs
@@ -597,6 +597,19 @@ Every prompt inherits these **standing rules** — repeat them if the agent drif
 > `_accessRepo` from `AuthAppService` / `AuthEndpoints`, delete the entity definitions and `DbSet`s, drop
 > the tables via EF migrations in both services, and update the test fixtures. Preserve existing
 > resolution behaviour identically.
+>
+> **Depends on every remaining reader/writer of the old tables(TenantAccess and TenantUserRole) moving to `Grant` first — 
+> Check for
+> other readers/writers before starting — this ticket owns whatever isn't already covered by name 
+> in another ticket.
+>
+> **`al.auth` cannot write `Grant` directly** — `al.master` is the sole writer; `al.auth` only
+> holds a read-only connection to it (`RegistryDbContext.SaveChangesAsync` throws by design). So
+> `al.auth`'s writers of `TenantAccess` (`POST /users/onboard`, self-registration) need a
+> synchronous call into `al.master`'s grant-creation endpoint, not a local repository swap. Today,
+> `/users/onboard` writes only `TenantAccess`, never `Grant`, so a user invited through it gets no
+> access under the new resolver — fix this as part of this ticket, not after. Test: the four Ace
+> users and a freshly invited user both resolve access correctly once the tables are dropped.
 
 ### A7 — Application gating
 
@@ -1286,13 +1299,25 @@ A task is done when **all** of these hold:
 | 2026-09-01 | Claude | **`ScopeProvider` mounted inside `AuthProvider`, alongside `F3`'s `DiagnosticsProvider`** — neither depends on the other. **PR review fix:** a single switcher action changing tenant, company and branch together could call `queryClient.clear()` up to three times. Not an actual race (no `await` sits between the calls, so nothing can refetch in between) but still redundant — added an opt-in `skipClear` to `switchCompany`/`switchBranch` so a composed action clears exactly once. | Covered by new tests asserting exact clear-call counts, not just that a clear eventually happens. |
 | 2026-09-02 | Claude | **`F7` Shared UI primitives merged to `development`.** Seven components in `packages/react/src/shared/` — `PageHeader`, `EmptyState`, `StatTile`, `ScopeBadge`, `ConfirmDialog`, `Drawer`, `IllustrationSlot` — all theme-token driven, all responsive, none fetching data. 36 tests, including the required `EmptyState` filtered-versus-genuinely-empty distinction. `README.md` documents the real constraints: no shared `Button` to build on (`packages/react` can't depend on `apps/web`, so action slots take a plain `ReactNode`), `ScopeBadge` deliberately decoupled from `F5`'s types. Real bug found and fixed: `Drawer` and the pre-existing `datagrid` package both used `animate-in`/`slide-in-from-*` Tailwind classes that produce **no actual CSS anywhere in the project** (no plugin, no keyframes) — replaced with real `transition-transform` driven by `F1`'s motion tokens, verified live via computed style. | 255+ tests green. Verified live in both themes and at mobile width. |
 | 2026-09-02 | Claude | **Consumed in the app, not just built.** `PageHeader` replaced ad-hoc headers on Downloads/Bulk import/Import review; `EmptyState` on Downloads/Bulk import/Team table; `ConfirmDialog` replaced the `datagrid` package's hand-rolled `DataGridConfirmDialog` on the two real delete flows (Users management, Sites management); `StatTile` widened to full `MetricCard` parity (`subtitle`/`accentColor`/`iconBgColor`/`changeTone`/`changeCaption`, `value` accepting any `ReactNode` for an animated counter) and is now the only card on the Dashboard — `MetricCard` deleted, it had exactly one consumer. `Drawer` and `ScopeBadge` deliberately left unconsumed — no screen needs a side panel yet, and `ScopeBadge` has no natural home in `F5`'s tree-style `ScopeSwitcher` without redesigning it. | Live-verified in both themes; full recursive test suite green with no regressions in `F2`/`F3`/`F5`. |
+| 2026-09-03 | Claude | **`A6` Membership grant model merged** (`al.net.packages` + `Carbon-Atlas-Services`). Replaces the implicit `TenantAccess`/`TenantUserRole` access model with the unified `Grant` table, endpoints to list and manage grants, and permission resolution reading from it. Old tables kept, dual-written during cutover — removal tracked separately under `A6b`. | `al.net.packages` 430 tests, `al.platform.tests` 364 tests, both green. Four Ace users verified live. |
 
 ---
 
 ## Pick up here
 
-The authentication track is **complete and verified live**. Nothing is outstanding from it — start on
-the W1 roadmap above.
+**Implemented:** `A6` — the unified `Grant` model, its endpoints, and the switch of permission
+resolution and application-gating reads onto it. `TenantAccess`/`TenantUserRole` still exist,
+dual-written, not yet removed.
+
+**Next:** identity work continues with `A7` (application gating) and `A8` (effective-access
+resolver), both building on `Grant`. `A6b` (retire the old tables) comes after — it depends on
+every remaining reader/writer of `TenantAccess`/`TenantUserRole` moving to `Grant` first,  see `A6b`'s own entry for the specific ones already found.
+
+**Note:** `al.auth`'s `POST /users/onboard` still writes only `TenantAccess`, never `Grant` — a
+user invited through it today gets no access under the new resolver. Not yet fixed; tracked under
+`A6b`.
+
+The authentication track before this is **complete and verified live** — nothing outstanding there.
 
 **Decided, do not "fix":** `branchId` and `scopePath` travel as `x-branch-id` / `x-scope-path`
 headers rather than token claims. They drive both query filtering and write stamping, but they are
