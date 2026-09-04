@@ -271,7 +271,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☑ | 20 Aug | Dev - VR | Foundation | `F2` **App shell** — sidebar, top bar, ⌘K palette, breadcrumbs; **nav hides on missing permission** | M | 4 | Mounted `TenantSwitcher` here, later superseded in place by `F5`'s `ScopeSwitcher`. |
 | ◐ | 20 Aug | Dev - AG | Identity | `A7` **Application gating** — refuse token issuance for an application with no grant; `app` claim; route check | H | 4 | The "web but not mobile" requirement, enforced at issuance rather than in the UI. |
 | ☑ | 20 Aug | Dev - RS | Foundation | `F5` **Scope context** — PLATFORM→UNIT + application; switcher; **scope in every query key**; invalidate on switch | H | 4 | A cache surviving a scope switch shows another company's data. |
-| ☐ | 21 Aug | Dev | Identity | `A8` **Effective-access resolver** — union for permissions, most-specific-wins for settings, deny beats both | H | 4 | The union/most-specific split is the subtle part. |
+| ☑ | 21 Aug | Dev - RS | Identity | `A8` **Effective-access resolver** — union for permissions, most-specific-wins for settings, deny beats both | H | 4 | The union/most-specific split is the subtle part. `IEffectiveAccessResolver` in `al.net.authorization`, combining the already-correct `EfPermissionProvider` (union/deny) and `IPlatformSettings` (most-specific-wins) behind one call — neither rule re-implemented. SDK-only; no new endpoint. |
 | ☑ | 21 Aug | Dev - RS | Foundation | `F7` **Shared UI primitives** — page header, empty state, stat tile, scope badge, confirm dialog, drawer, illustration slot | M | 4 | Into `packages/react`, not `apps/web`. |
 | ◐ | 21 Aug | Dev - AG | Foundation | `F4` **Model & hook conventions** — extend the integration standard; scaffold script; scope-aware query-key helper | L | 3 | Land before others write API files. |
 
@@ -1300,6 +1300,7 @@ A task is done when **all** of these hold:
 | 2026-09-02 | Claude | **`F7` Shared UI primitives merged to `development`.** Seven components in `packages/react/src/shared/` — `PageHeader`, `EmptyState`, `StatTile`, `ScopeBadge`, `ConfirmDialog`, `Drawer`, `IllustrationSlot` — all theme-token driven, all responsive, none fetching data. 36 tests, including the required `EmptyState` filtered-versus-genuinely-empty distinction. `README.md` documents the real constraints: no shared `Button` to build on (`packages/react` can't depend on `apps/web`, so action slots take a plain `ReactNode`), `ScopeBadge` deliberately decoupled from `F5`'s types. Real bug found and fixed: `Drawer` and the pre-existing `datagrid` package both used `animate-in`/`slide-in-from-*` Tailwind classes that produce **no actual CSS anywhere in the project** (no plugin, no keyframes) — replaced with real `transition-transform` driven by `F1`'s motion tokens, verified live via computed style. | 255+ tests green. Verified live in both themes and at mobile width. |
 | 2026-09-02 | Claude | **Consumed in the app, not just built.** `PageHeader` replaced ad-hoc headers on Downloads/Bulk import/Import review; `EmptyState` on Downloads/Bulk import/Team table; `ConfirmDialog` replaced the `datagrid` package's hand-rolled `DataGridConfirmDialog` on the two real delete flows (Users management, Sites management); `StatTile` widened to full `MetricCard` parity (`subtitle`/`accentColor`/`iconBgColor`/`changeTone`/`changeCaption`, `value` accepting any `ReactNode` for an animated counter) and is now the only card on the Dashboard — `MetricCard` deleted, it had exactly one consumer. `Drawer` and `ScopeBadge` deliberately left unconsumed — no screen needs a side panel yet, and `ScopeBadge` has no natural home in `F5`'s tree-style `ScopeSwitcher` without redesigning it. | Live-verified in both themes; full recursive test suite green with no regressions in `F2`/`F3`/`F5`. |
 | 2026-09-03 | Claude | **`A6` Membership grant model merged** (`al.net.packages` + `Carbon-Atlas-Services`). Replaces the implicit `TenantAccess`/`TenantUserRole` access model with the unified `Grant` table, endpoints to list and manage grants, and permission resolution reading from it. Old tables kept, dual-written during cutover — removal tracked separately under `A6b`. | `al.net.packages` 430 tests, `al.platform.tests` 364 tests, both green. Four Ace users verified live. |
+| 2026-09-04 | Claude | **`A8` Effective-access resolver merged** (`al.net.packages`). `IEffectiveAccessResolver` / `EffectiveAccess` in `al.net.authorization`, wired in `AddAlNetDatabaseAuthorization` next to the real `EfPermissionProvider` and `EfPlatformSettings`. Combines the two already-correct systems behind one call rather than re-implementing either: permissions stay a **union** across every applicable grant (denials removed, unchanged from `EfPermissionProvider`), configuration stays **most-specific-wins** (unchanged from `EfPlatformSettings`) — the two are kept as separate accessors on `EffectiveAccess` (`Permissions`/`HasPermission` vs `GetSetting<T>`) rather than merged into one rule, which is the mistake `IDENTITY-AND-SCOPE.md` calls out as the likely one. SDK-only — no `Carbon-Atlas-Services` endpoint yet; exposing it over HTTP is for a consuming task (`A14`). | New Sqlite-backed integration suite (`EffectiveAccessResolverAceFixtureTests`) against the real `EfPermissionProvider`, fixtured on the same four-reference-user shape as `RoleScopeTests` (tenant admin / group admin / company admin / member) — explicitly asserts the union case IDENTITY-AND-SCOPE.md names: a company-level reader plus a branch-level admin is admin at that branch **and still a reader elsewhere**. Also covers an explicit `DENY` override beating a role, and grant selection correctly excluding a wrong-application, an expired, and a revoked grant. Full suite 442/442 green, no regressions. |
 
 ---
 
@@ -1307,11 +1308,15 @@ A task is done when **all** of these hold:
 
 **Implemented:** `A6` — the unified `Grant` model, its endpoints, and the switch of permission
 resolution and application-gating reads onto it. `TenantAccess`/`TenantUserRole` still exist,
-dual-written, not yet removed.
+dual-written, not yet removed. `A8` — `IEffectiveAccessResolver`, combining the already-correct
+permission-union and settings-most-specific-wins behind one call; SDK-only, not yet exposed over
+HTTP by any service.
 
-**Next:** identity work continues with `A7` (application gating) and `A8` (effective-access
-resolver), both building on `Grant`. `A6b` (retire the old tables) comes after — it depends on
-every remaining reader/writer of `TenantAccess`/`TenantUserRole` moving to `Grant` first,  see `A6b`'s own entry for the specific ones already found.
+**Next:** identity work continues with `A7` (application gating, still in progress). `A8`'s result
+is not consumed anywhere yet — `A12`/`A14`/`F2`'s nav-permission-gating are the tasks that will
+actually call it. `A6b` (retire the old tables) comes after `A7` — it depends on every remaining
+reader/writer of `TenantAccess`/`TenantUserRole` moving to `Grant` first, see `A6b`'s own entry for
+the specific ones already found.
 
 **Note:** `al.auth`'s `POST /users/onboard` still writes only `TenantAccess`, never `Grant` — a
 user invited through it today gets no access under the new resolver. Not yet fixed; tracked under
