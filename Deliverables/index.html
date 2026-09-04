@@ -3693,24 +3693,24 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>A diagnostic shipping a token or PII is a breach, not a feature.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>19 Aug</td>
 <td>Dev - VR</td>
 <td>Identity</td>
 <td><code>A6</code> <strong>Membership grant model (backend)</strong> — one grant table; scope columns, application, validity, grant type, descendants</td>
 <td>H</td>
 <td>4</td>
-<td>The spine of W2. See <a href="../IDENTITY-AND-SCOPE/">IDENTITY-AND-SCOPE.md</a>.</td>
+<td>The spine of W2. See <a href="../IDENTITY-AND-SCOPE/">IDENTITY-AND-SCOPE.md</a>. Dual-writing to legacy tables; <strong>cleanup pending in <code>A6b</code> backlog</strong>.</td>
 </tr>
 <tr>
 <td>☐</td>
 <td>28 Aug</td>
 <td>Dev</td>
 <td>Identity</td>
-<td><code>A6b</code> <strong>Remove deprecated <code>TenantAccess</code> &amp; <code>TenantUserRole</code> (cleanup)</strong> — remove dual-writes, seeders, and drop legacy tables</td>
+<td><code>A6b</code> <strong>Remove deprecated <code>TenantAccess</code> &amp; <code>TenantUserRole</code> (cleanup backlog)</strong> — remove dual-writes, seeders, and drop legacy tables</td>
 <td>M</td>
 <td>3</td>
-<td><strong>Execute only after all readers/services switch to Grant.</strong> Keep dual-writes until reader dependencies are removed.</td>
+<td><strong>Cleanup pending / backlog</strong>: Execute only after all readers/services switch to Grant. Keep dual-writes until reader dependencies are removed.</td>
 </tr>
 <tr>
 <td>☑</td>
@@ -3743,14 +3743,14 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>A cache surviving a scope switch shows another company's data.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>☑</td>
 <td>21 Aug</td>
-<td>Dev</td>
+<td>Dev - RS</td>
 <td>Identity</td>
 <td><code>A8</code> <strong>Effective-access resolver</strong> — union for permissions, most-specific-wins for settings, deny beats both</td>
 <td>H</td>
 <td>4</td>
-<td>The union/most-specific split is the subtle part.</td>
+<td>The union/most-specific split is the subtle part. <code>IEffectiveAccessResolver</code> in <code>al.net.authorization</code>, combining the already-correct <code>EfPermissionProvider</code> (union/deny) and <code>IPlatformSettings</code> (most-specific-wins) behind one call — neither rule re-implemented. SDK-only; no new endpoint.</td>
 </tr>
 <tr>
 <td>☑</td>
@@ -4778,7 +4778,7 @@ an invoice and an offset plan.</em></p>
 <p>What the roadmap creates, so a reviewer can see the shape before it exists.</p>
 <h3 id="alnetpackages-sdk"><code>al.net.packages</code> (SDK)</h3>
 <pre><code>al.net.entities/Master/UnitCatalog.cs                       T1
-al.net.entities/Identity/Grant.cs                           A6
+al.net.entities/Master/Grant.cs                             A6
 al.net.payments/                                            C8   ← new package
   Abstractions/IPaymentProvider.cs
   Services/PaymentService.cs
@@ -4932,6 +4932,17 @@ Remove <code>_userRoleRepo</code> dual-writes in <code>MasterGovernanceService</
 <code>_accessRepo</code> from <code>AuthAppService</code> / <code>AuthEndpoints</code>, delete the entity definitions and <code>DbSet</code>s, drop
 the tables via EF migrations in both services, and update the test fixtures. Preserve existing
 resolution behaviour identically.</p>
+<p>**Depends on every remaining reader/writer of the old tables(TenantAccess and TenantUserRole) moving to <code>Grant</code> first — 
+Check for
+other readers/writers before starting — this ticket owns whatever isn't already covered by name 
+in another ticket.</p>
+<p><strong><code>al.auth</code> cannot write <code>Grant</code> directly</strong> — <code>al.master</code> is the sole writer; <code>al.auth</code> only
+holds a read-only connection to it (<code>RegistryDbContext.SaveChangesAsync</code> throws by design). So
+<code>al.auth</code>'s writers of <code>TenantAccess</code> (<code>POST /users/onboard</code>, self-registration) need a
+synchronous call into <code>al.master</code>'s grant-creation endpoint, not a local repository swap. Today,
+<code>/users/onboard</code> writes only <code>TenantAccess</code>, never <code>Grant</code>, so a user invited through it gets no
+access under the new resolver — fix this as part of this ticket, not after. Test: the four Ace
+users and a freshly invited user both resolve access correctly once the tables are dropped.</p>
 </blockquote>
 <h3 id="a7-application-gating">A7 — Application gating</h3>
 <blockquote>
@@ -5731,12 +5742,36 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td><strong>Consumed in the app, not just built.</strong> <code>PageHeader</code> replaced ad-hoc headers on Downloads/Bulk import/Import review; <code>EmptyState</code> on Downloads/Bulk import/Team table; <code>ConfirmDialog</code> replaced the <code>datagrid</code> package's hand-rolled <code>DataGridConfirmDialog</code> on the two real delete flows (Users management, Sites management); <code>StatTile</code> widened to full <code>MetricCard</code> parity (<code>subtitle</code>/<code>accentColor</code>/<code>iconBgColor</code>/<code>changeTone</code>/<code>changeCaption</code>, <code>value</code> accepting any <code>ReactNode</code> for an animated counter) and is now the only card on the Dashboard — <code>MetricCard</code> deleted, it had exactly one consumer. <code>Drawer</code> and <code>ScopeBadge</code> deliberately left unconsumed — no screen needs a side panel yet, and <code>ScopeBadge</code> has no natural home in <code>F5</code>'s tree-style <code>ScopeSwitcher</code> without redesigning it.</td>
 <td>Live-verified in both themes; full recursive test suite green with no regressions in <code>F2</code>/<code>F3</code>/<code>F5</code>.</td>
 </tr>
+<tr>
+<td>2026-09-03</td>
+<td>Claude</td>
+<td><strong><code>A6</code> Membership grant model merged</strong> (<code>al.net.packages</code> + <code>Carbon-Atlas-Services</code>). Replaces the implicit <code>TenantAccess</code>/<code>TenantUserRole</code> access model with the unified <code>Grant</code> table, endpoints to list and manage grants, and permission resolution reading from it. Old tables kept, dual-written during cutover — removal tracked separately under <code>A6b</code>.</td>
+<td><code>al.net.packages</code> 430 tests, <code>al.platform.tests</code> 364 tests, both green. Four Ace users verified live.</td>
+</tr>
+<tr>
+<td>2026-09-04</td>
+<td>Claude</td>
+<td><strong><code>A8</code> Effective-access resolver merged</strong> (<code>al.net.packages</code>). <code>IEffectiveAccessResolver</code> / <code>EffectiveAccess</code> in <code>al.net.authorization</code>, wired in <code>AddAlNetDatabaseAuthorization</code> next to the real <code>EfPermissionProvider</code> and <code>EfPlatformSettings</code>. Combines the two already-correct systems behind one call rather than re-implementing either: permissions stay a <strong>union</strong> across every applicable grant (denials removed, unchanged from <code>EfPermissionProvider</code>), configuration stays <strong>most-specific-wins</strong> (unchanged from <code>EfPlatformSettings</code>) — the two are kept as separate accessors on <code>EffectiveAccess</code> (<code>Permissions</code>/<code>HasPermission</code> vs <code>GetSetting&lt;T&gt;</code>) rather than merged into one rule, which is the mistake <code>IDENTITY-AND-SCOPE.md</code> calls out as the likely one. SDK-only — no <code>Carbon-Atlas-Services</code> endpoint yet; exposing it over HTTP is for a consuming task (<code>A14</code>).</td>
+<td>New Sqlite-backed integration suite (<code>EffectiveAccessResolverAceFixtureTests</code>) against the real <code>EfPermissionProvider</code>, fixtured on the same four-reference-user shape as <code>RoleScopeTests</code> (tenant admin / group admin / company admin / member) — explicitly asserts the union case IDENTITY-AND-SCOPE.md names: a company-level reader plus a branch-level admin is admin at that branch <strong>and still a reader elsewhere</strong>. Also covers an explicit <code>DENY</code> override beating a role, and grant selection correctly excluding a wrong-application, an expired, and a revoked grant. Full suite 442/442 green, no regressions.</td>
+</tr>
 </tbody>
 </table>
 <hr />
 <h2 id="pick-up-here">Pick up here</h2>
-<p>The authentication track is <strong>complete and verified live</strong>. Nothing is outstanding from it — start on
-the W1 roadmap above.</p>
+<p><strong>Implemented:</strong> <code>A6</code> — the unified <code>Grant</code> model, its endpoints, and the switch of permission
+resolution and application-gating reads onto it. <code>TenantAccess</code>/<code>TenantUserRole</code> still exist,
+dual-written, not yet removed. <code>A8</code> — <code>IEffectiveAccessResolver</code>, combining the already-correct
+permission-union and settings-most-specific-wins behind one call; SDK-only, not yet exposed over
+HTTP by any service.</p>
+<p><strong>Next:</strong> identity work continues with <code>A7</code> (application gating, still in progress). <code>A8</code>'s result
+is not consumed anywhere yet — <code>A12</code>/<code>A14</code>/<code>F2</code>'s nav-permission-gating are the tasks that will
+actually call it. <code>A6b</code> (retire the old tables) comes after <code>A7</code> — it depends on every remaining
+reader/writer of <code>TenantAccess</code>/<code>TenantUserRole</code> moving to <code>Grant</code> first, see <code>A6b</code>'s own entry for
+the specific ones already found.</p>
+<p><strong>Note:</strong> <code>al.auth</code>'s <code>POST /users/onboard</code> still writes only <code>TenantAccess</code>, never <code>Grant</code> — a
+user invited through it today gets no access under the new resolver. Not yet fixed; tracked under
+<code>A6b</code>.</p>
+<p>The authentication track before this is <strong>complete and verified live</strong> — nothing outstanding there.</p>
 <p><strong>Decided, do not "fix":</strong> <code>branchId</code> and <code>scopePath</code> travel as <code>x-branch-id</code> / <code>x-scope-path</code>
 headers rather than token claims. They drive both query filtering and write stamping, but they are
 also what permission resolution compares against — so naming a scope you hold no assignment for
