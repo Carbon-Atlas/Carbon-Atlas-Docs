@@ -286,7 +286,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ◐ | 24 Aug | Dev - VR | RBAC | `A11` **Permission catalogue UI** — resource/action tree, route rules, search; platform rows read-only *with a reason* | M | 4 | |
 | ◐ | 25 Aug | Dev - VR | Identity | `A12` **Membership management UI** — grant access at any level, for named applications, with validity dates | H | 4 | The screen the whole identity model exists for. |
 | ☐ | 25 Aug | Dev | RBAC | `A13` **Role→permission matrix** — bulk toggle, inherited vs explicit, **diff before save** | H | 4 | A matrix saved blind is how privilege creeps. |
-| ☐ | 25 Aug | Dev | RBAC | `A14` **Effective-permission preview** — pick a user and a scope; see what they can do and *which grant said so* | H | 4 | Provenance is the feature. |
+| ◐ | 25 Aug | Dev - RS | RBAC | `A14` **Effective-permission preview** — pick a user and a scope; see what they can do and *which grant said so* | H | 4 | Provenance is the feature. |
 | ☐ | 26 Aug | Dev | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
 | ☐ | 26 Aug | Dev | Auth | `A16` **MFA enrolment** — TOTP enrol, verify, recovery codes; **mandatory for admin roles** | H | 4 | Backend has `MfaEnabled`. Policy is per role, per scope. |
 | ☐ | 26 Aug | Dev | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | |
