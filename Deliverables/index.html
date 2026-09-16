@@ -3841,14 +3841,14 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>A matrix saved blind is how privilege creeps.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>25 Aug</td>
 <td>Dev - RS</td>
 <td>RBAC</td>
 <td><code>A14</code> <strong>Effective-permission preview</strong> — pick a user and a scope; see what they can do and <em>which grant said so</em></td>
 <td>H</td>
 <td>4</td>
-<td>Provenance is the feature.</td>
+<td>Provenance is the feature. Merged across all three repos — see session log 2026-09-16.</td>
 </tr>
 <tr>
 <td>☐</td>
@@ -3871,9 +3871,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Backend has <code>MfaEnabled</code>. Policy is per role, per scope.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>26 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
 <td>Identity</td>
 <td><code>A17</code> <strong>Users management</strong> — invite, deactivate, resend, view a user's grants across tenants</td>
 <td>M</td>
@@ -3891,9 +3891,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Support access that looks like normal access cannot be investigated afterwards.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>27 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
 <td>Auth</td>
 <td><code>A19</code> <strong>Session management UI</strong> — active sessions, device, last seen, revoke; revoke-others after password change</td>
 <td>M</td>
@@ -5744,6 +5744,18 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td><strong><code>A8</code> Effective-access resolver merged</strong> (<code>al.net.packages</code>). <code>IEffectiveAccessResolver</code> / <code>EffectiveAccess</code> in <code>al.net.authorization</code>, wired in <code>AddAlNetDatabaseAuthorization</code> next to the real <code>EfPermissionProvider</code> and <code>EfPlatformSettings</code>. Combines the two already-correct systems behind one call rather than re-implementing either: permissions stay a <strong>union</strong> across every applicable grant (denials removed, unchanged from <code>EfPermissionProvider</code>), configuration stays <strong>most-specific-wins</strong> (unchanged from <code>EfPlatformSettings</code>) — the two are kept as separate accessors on <code>EffectiveAccess</code> (<code>Permissions</code>/<code>HasPermission</code> vs <code>GetSetting&lt;T&gt;</code>) rather than merged into one rule, which is the mistake <code>IDENTITY-AND-SCOPE.md</code> calls out as the likely one. SDK-only — no <code>Carbon-Atlas-Services</code> endpoint yet; exposing it over HTTP is for a consuming task (<code>A14</code>).</td>
 <td>New Sqlite-backed integration suite (<code>EffectiveAccessResolverAceFixtureTests</code>) against the real <code>EfPermissionProvider</code>, fixtured on the same four-reference-user shape as <code>RoleScopeTests</code> (tenant admin / group admin / company admin / member) — explicitly asserts the union case IDENTITY-AND-SCOPE.md names: a company-level reader plus a branch-level admin is admin at that branch <strong>and still a reader elsewhere</strong>. Also covers an explicit <code>DENY</code> override beating a role, and grant selection correctly excluding a wrong-application, an expired, and a revoked grant. Full suite 442/442 green, no regressions.</td>
 </tr>
+<tr>
+<td>2026-09-16</td>
+<td>Claude</td>
+<td><strong><code>A14</code> Effective-permission preview merged across all three repos.</strong> Deliberately did <strong>not</strong> bake provenance into <code>A8</code>'s <code>IEffectiveAccessResolver</code>/<code>EffectiveAccess</code> — that class sits on the hot path of every permission check in the platform, and not every <code>IPermissionProvider</code> (an API key, a token's already-resolved permissions) has a grant behind it to explain. Instead added a new, narrow <code>IPermissionProvenanceResolver</code> (<code>al.net.authorization</code>), implemented by <code>EfPermissionProvider</code> alongside its existing interface, sharing one internal computation so the union/deny-wins rule is resolved exactly once rather than risking two answers that could disagree. <code>Carbon-Atlas-Services</code> exposes it as <code>GET /api/v1/master/users/{userId}/effective-permissions</code>, reusing <code>/me/effective-permissions</code>'s response shape (<code>details[].sources</code> populated this time) rather than a parallel DTO; role names are joined in from <code>al.master</code>'s own <code>Role</code> catalogue, since the shared SDK only knows ids. <code>Carbon-atlas-webapp</code> adds <code>features/rbac/</code>, gated client-side on <code>usePermission('USER:READ')</code> matching the route's own permission requirement, using the four Ace users from <code>AceTenantSeeder.cs</code> as the fixture the task spec names.</td>
+<td><code>al.net.packages</code> 446/446 at merge. <code>Carbon-Atlas-Services</code> could only be compile-verified against a throwaway local stub of the new SDK types, never a live build/test — this repo's <code>Directory.Build.props</code> deliberately refuses any local-SDK escape hatch, building only against a <em>published</em> <code>al.net.packages</code> package; full verification there waits on that package actually publishing. <code>Carbon-atlas-webapp</code> 172/172, plus a real bug found and fixed during manual browser verification: the preview's query hook was missing <code>networkMode: 'always'</code> (the same fix <code>useEffectivePermissions</code> already needed), without which the query silently stalls — neither loading nor error state ever shows — when the backend is unreachable, rather than settling.</td>
+</tr>
+<tr>
+<td>2026-09-16</td>
+<td>Claude</td>
+<td><strong><code>A14</code> aligned with <code>A15</code> after both landed on <code>al.net.packages</code> <code>integration</code> at once.</strong> A15's parent/sub-tenant "descendant reach" work touched the same <code>Apply()</code> loop in <code>EfPermissionProvider</code> A14 had just changed, and — separately from the merge conflict itself — provenance had a real gap once both features coexisted: a permission a user holds through a <em>parent</em> tenant's descendant-reach grant reported a <code>GrantId</code>/<code>RoleId</code> that do not exist in the tenant actually being previewed, with nothing saying why (verified directly: wrote a throwaway test reproducing the scenario, confirmed the bad output, deleted the test). Fixed by adding <code>TenantId</code>/<code>IsDescendantReach</code> to <code>PermissionSource</code>, threaded through <code>Carbon-Atlas-Services</code>' <code>GrantExplanation</code> and into the webapp's provenance list as a "via parent tenant <code>X</code>" label; the role-name lookup for a descendant-reach source now reads across the tenant boundary via <code>ScopeFilterOverride.SuppressTenantIsolation</code>, the same mechanism <code>A15</code>'s own sub-tenant aggregation already uses for this exact kind of legitimate cross-tenant read.</td>
+<td><code>al.net.packages</code> 461/461 (2 new tests proving <code>TenantId</code>/<code>IsDescendantReach</code> for both the descendant-reach case and the ordinary case, added to <code>A15</code>'s own <code>TenantHierarchyPermissionTests</code> fixture rather than a duplicate one). <code>Carbon-atlas-webapp</code> 174/174. A follow-up PR comment also caught a missing sidebar/breadcrumb/⌘K entry for the preview screen (<code>navigation.config.ts</code> had the route but no nav item) — fixed, gated on the same <code>USER:READ</code> the page and route already use.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -5754,10 +5766,16 @@ dual-written, not yet removed. <code>A8</code> — <code>IEffectiveAccessResolve
 permission-union and settings-most-specific-wins behind one call; SDK-only, not yet exposed over
 HTTP by any service.</p>
 <p><strong>Next:</strong> identity work continues with <code>A7</code> (application gating, still in progress). <code>A8</code>'s result
-is not consumed anywhere yet — <code>A12</code>/<code>A14</code>/<code>F2</code>'s nav-permission-gating are the tasks that will
-actually call it. <code>A6b</code> (retire the old tables) comes after <code>A7</code> — it depends on every remaining
-reader/writer of <code>TenantAccess</code>/<code>TenantUserRole</code> moving to <code>Grant</code> first, see <code>A6b</code>'s own entry for
-the specific ones already found.</p>
+is now consumed by <code>A14</code> (effective-permission preview, merged 2026-09-16 — see session log) via a
+new, separate <code>IPermissionProvenanceResolver</code>, not by changing <code>IEffectiveAccessResolver</code> itself;
+<code>A12</code>/<code>F2</code>'s nav-permission-gating are still the other tasks expected to call it. <code>A6b</code> (retire the
+old tables) comes after <code>A7</code> — it depends on every remaining reader/writer of
+<code>TenantAccess</code>/<code>TenantUserRole</code> moving to <code>Grant</code> first, see <code>A6b</code>'s own entry for the specific ones
+already found.</p>
+<p><strong>Note on <code>A14</code>/<code>A15</code> overlap:</strong> both landed on <code>al.net.packages</code> <code>integration</code> around the same time
+and touched the same <code>EfPermissionProvider</code> loop — see the 2026-09-16 session log entries for the
+merge-conflict resolution and the provenance gap it surfaced (a permission held through <code>A15</code>'s
+parent-tenant descendant reach needs its <em>own</em> tenant id in provenance, not the previewed tenant's).</p>
 <p><strong>Note:</strong> <code>al.auth</code>'s <code>POST /users/onboard</code> still writes only <code>TenantAccess</code>, never <code>Grant</code> — a
 user invited through it today gets no access under the new resolver. Not yet fixed; tracked under
 <code>A6b</code>.</p>
