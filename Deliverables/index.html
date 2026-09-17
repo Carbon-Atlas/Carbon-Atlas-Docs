@@ -3763,7 +3763,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Into <code>packages/react</code>, not <code>apps/web</code>.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>21 Aug</td>
 <td>Dev - AG</td>
 <td>Foundation</td>
@@ -3791,7 +3791,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 </thead>
 <tbody>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>24 Aug</td>
 <td>Dev</td>
 <td>Auth</td>
@@ -3821,7 +3821,7 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td></td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☑</td>
 <td>25 Aug</td>
 <td>Dev - VR</td>
 <td>Identity</td>
@@ -3871,9 +3871,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Backend has <code>MfaEnabled</code>. Policy is per role, per scope.</td>
 </tr>
 <tr>
-<td>◐</td>
+<td>☐</td>
 <td>26 Aug</td>
-<td>Dev - VR</td>
+<td>Dev</td>
 <td>Identity</td>
 <td><code>A17</code> <strong>Users management</strong> — invite, deactivate, resend, view a user's grants across tenants</td>
 <td>M</td>
@@ -5756,6 +5756,18 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 <td><strong><code>A14</code> aligned with <code>A15</code> after both landed on <code>al.net.packages</code> <code>integration</code> at once.</strong> A15's parent/sub-tenant "descendant reach" work touched the same <code>Apply()</code> loop in <code>EfPermissionProvider</code> A14 had just changed, and — separately from the merge conflict itself — provenance had a real gap once both features coexisted: a permission a user holds through a <em>parent</em> tenant's descendant-reach grant reported a <code>GrantId</code>/<code>RoleId</code> that do not exist in the tenant actually being previewed, with nothing saying why (verified directly: wrote a throwaway test reproducing the scenario, confirmed the bad output, deleted the test). Fixed by adding <code>TenantId</code>/<code>IsDescendantReach</code> to <code>PermissionSource</code>, threaded through <code>Carbon-Atlas-Services</code>' <code>GrantExplanation</code> and into the webapp's provenance list as a "via parent tenant <code>X</code>" label; the role-name lookup for a descendant-reach source now reads across the tenant boundary via <code>ScopeFilterOverride.SuppressTenantIsolation</code>, the same mechanism <code>A15</code>'s own sub-tenant aggregation already uses for this exact kind of legitimate cross-tenant read.</td>
 <td><code>al.net.packages</code> 461/461 (2 new tests proving <code>TenantId</code>/<code>IsDescendantReach</code> for both the descendant-reach case and the ordinary case, added to <code>A15</code>'s own <code>TenantHierarchyPermissionTests</code> fixture rather than a duplicate one). <code>Carbon-atlas-webapp</code> 174/174. A follow-up PR comment also caught a missing sidebar/breadcrumb/⌘K entry for the preview screen (<code>navigation.config.ts</code> had the route but no nav item) — fixed, gated on the same <code>USER:READ</code> the page and route already use.</td>
 </tr>
+<tr>
+<td>2026-09-17</td>
+<td>Dev</td>
+<td><strong><code>A9</code> Tenant &amp; company chooser completed.</strong> Post-login context chooser (<code>/choose-context</code> and <code>TenantChooser</code>) for multi-tenant and multi-company memberships; automatic single-tenant bypass skipping the screen when membership spans only one tenant; search filtering across tenant name/id/subsidiaries; keyboard navigation (<code>aria-activedescendant</code> + Arrow/Enter); enterprise card directory with brand monograms (<code>getOrgBadge</code>) and active-session indicator; and company drilldown selection via <code>useMyScopes</code>. Atomic tenant context switching via <code>POST /auth/context/switch</code>; entire TanStack query cache dropped (<code>queryClient.clear()</code>) on switch to prevent cross-tenant data leaks; cross-tab session sync listening to <code>storage</code> events across <code>AUTH_KEYS</code>; shared post-auth destination sanitization (<code>resolvePostAuthDestination</code>) ensuring safe redirects to protected routes; and prefetching accessible tenants query during login to avoid redundant network roundtrips.</td>
+<td>Real endpoints wired to <code>al.auth</code> (7001) and <code>al.master</code> (7002). Unit and integration test suites pass (235 web tests, 225 react tests, type-check and lint clean).</td>
+</tr>
+<tr>
+<td>2026-09-17</td>
+<td>Dev - VR</td>
+<td><strong><code>A12</code> Membership management UI completed (<code>features/identity/</code>).</strong> Admin interface mounted at <code>/settings/membership</code> over <code>al.master</code> grants: searchable/filterable DataGrid with KPI summary cards, creation modal with 3-tier hierarchical scope picker (<code>Company</code> → <code>Branch</code> → <code>Industry</code> → <code>Unit</code>), application gating dimension, validity windows, and mandatory expiration enforcement for Support grants; audit-compliant soft-revocation and suspension dialogs; user cross-tenant drawer. Gated mutating actions (<code>Grant Access</code>, row actions, drawer footer) on <code>USER:UPDATE</code> while keeping page and cross-tenant reach inspectable on <code>USER:READ</code>, preventing 403s for view-only roles. <code>toGrant</code> wire adapter normalizes value objects (<code>ApplicationId</code>) and null-scope inheritance. <code>features/identity/GUIDE.md</code> updated.</td>
+<td>63 tests across 9 test suites in <code>features/identity</code> (523 tests monorepo-wide), TypeScript type-check, lint, formatting, and production build clean.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -5764,7 +5776,9 @@ stated plainly, the deferred backlog with estimates, and the open decisions stil
 resolution and application-gating reads onto it. <code>TenantAccess</code>/<code>TenantUserRole</code> still exist,
 dual-written, not yet removed. <code>A8</code> — <code>IEffectiveAccessResolver</code>, combining the already-correct
 permission-union and settings-most-specific-wins behind one call; SDK-only, not yet exposed over
-HTTP by any service.</p>
+HTTP by any service. <code>A12</code> — Membership management UI (<code>features/identity/</code>) mounted at
+<code>/settings/membership</code> over <code>al.master</code> grants, supporting hierarchical scopes, application gating,
+support grants, soft-revocation, cross-tenant drawers, and <code>USER:UPDATE</code> mutation gating.</p>
 <p><strong>Next:</strong> identity work continues with <code>A7</code> (application gating, still in progress). <code>A8</code>'s result
 is now consumed by <code>A14</code> (effective-permission preview, merged 2026-09-16 — see session log) via a
 new, separate <code>IPermissionProvenanceResolver</code>, not by changing <code>IEffectiveAccessResolver</code> itself;
@@ -5797,6 +5811,7 @@ solve, in <a href="../IDENTITY-AND-SCOPE/#why-branch-and-scope-path-travel-as-he
 <li>Onboarding UI: <code>features/identity/</code> with <code>OnboardUserForm</code>, <code>useOnboardUser</code> and a <code>GUIDE.md</code>.</li>
 <li><code>AssignUserRoleAsync</code> gained <code>scopePath</code> (industry/unit assignment) and is now <strong>idempotent</strong> —
   it previously wrote a duplicate row on every repeat.</li>
+<li><code>A9</code> <strong>Tenant &amp; company chooser</strong>: Built <code>TenantChooser</code> and <code>ChooseContextPage</code> (<code>/choose-context</code>). Single-tenant membership automatically bypasses the chooser; multi-tenant membership presents enterprise directory with search filtering, brand monograms, company drilldown selection, keyboard navigation, and full query cache clearing on switch. Tested via 13 unit tests in <code>useTenantChooser.test.tsx</code>, 12 unit tests in <code>TenantChooser.test.tsx</code>, and 4 unit tests in <code>useLogin.test.ts</code>.</li>
 </ul>
 <p><strong>Environment, if starting cold:</strong></p>
 <pre><code class="language-powershell">.\scripts\set-dev-secrets.ps1                 # once per machine
