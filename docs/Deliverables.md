@@ -290,7 +290,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☐ | 26 Aug | Dev | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
 | ☐ | 26 Aug | Dev | Auth | `A16` **MFA enrolment** — TOTP enrol, verify, recovery codes; **mandatory for admin roles** | H | 4 | Backend has `MfaEnabled`. Policy is per role, per scope. |
 | ◐ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | |
-| ☐ | 27 Aug | Dev | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
+| ◐ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
 | ◐ | 27 Aug | Dev - VR | Auth | `A19` **Session management UI** — active sessions, device, last seen, revoke; revoke-others after password change | M | 4 | |
 | ☐ | 27 Aug | Dev | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
 | ☐ | 28 Aug | Dev | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
