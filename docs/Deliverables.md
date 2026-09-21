@@ -287,7 +287,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☑ | 25 Aug | Dev - VR | Identity | `A12` **Membership management UI** — grant access at any level, for named applications, with validity dates | H | 4 | The screen the whole identity model exists for. |
 | ☐ | 25 Aug | Dev | RBAC | `A13` **Role→permission matrix** — bulk toggle, inherited vs explicit, **diff before save** | H | 4 | A matrix saved blind is how privilege creeps. |
 | ☑ | 25 Aug | Dev - RS | RBAC | `A14` **Effective-permission preview** — pick a user and a scope; see what they can do and *which grant said so* | H | 4 | Provenance is the feature. Merged across all three repos — see session log 2026-09-16. |
-| ☐ | 26 Aug | Dev | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
+| ◐ | 26 Aug | Dev - AG  | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
 | ☐ | 26 Aug | Dev | Auth | `A16` **MFA enrolment** — TOTP enrol, verify, recovery codes; **mandatory for admin roles** | H | 4 | Backend has `MfaEnabled`. Policy is per role, per scope. |
 | ◐ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | |
 | ◐ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
@@ -1356,6 +1356,7 @@ solve, in [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md#why-branch-and-scope-p
 - `AssignUserRoleAsync` gained `scopePath` (industry/unit assignment) and is now **idempotent** —
   it previously wrote a duplicate row on every repeat.
 - `A9` **Tenant & company chooser**: Built `TenantChooser` and `ChooseContextPage` (`/choose-context`). Single-tenant membership automatically bypasses the chooser; multi-tenant membership presents enterprise directory with search filtering, brand monograms, company drilldown selection, keyboard navigation, and full query cache clearing on switch. Tested via 13 unit tests in `useTenantChooser.test.tsx`, 12 unit tests in `TenantChooser.test.tsx`, and 4 unit tests in `useLogin.test.ts`.
+- `A10` **Roles UI & Guarded Deletion**: Built full role management in `apps/web/src/features/rbac/` (`RoleList`, `RoleFormDialog`, `DeleteRoleDialog`, `RoleDetailPage`) with scope badges, dynamic feature catalog mapping, cloning, and guarded deletion when assigned. Backed by `al.master` role CRUD endpoints, route rules, and atomic cascading revocation. Verified across 418 backend unit tests and 12 frontend vitest tests.
 
 **Environment, if starting cold:**
 
