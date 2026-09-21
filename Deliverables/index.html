@@ -3703,14 +3703,14 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The spine of W2. See <a href="../IDENTITY-AND-SCOPE/">IDENTITY-AND-SCOPE.md</a>. Dual-writing to legacy tables; <strong>cleanup pending in <code>A6b</code> backlog</strong>.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>28 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
 <td>Identity</td>
 <td><code>A6b</code> <strong>Remove deprecated <code>TenantAccess</code> &amp; <code>TenantUserRole</code> (cleanup backlog)</strong> — remove dual-writes, seeders, and drop legacy tables</td>
 <td>M</td>
 <td>3</td>
-<td><strong>Cleanup pending / backlog</strong>: Execute only after all readers/services switch to Grant. Keep dual-writes until reader dependencies are removed.</td>
+<td>Legacy tables, seeders, and dual-writes removed. <code>al.auth</code> is strictly identity; <code>al.master</code> sole writer to <code>ace_master.Grants</code>.</td>
 </tr>
 <tr>
 <td>☑</td>
