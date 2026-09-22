@@ -3831,9 +3831,9 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>The screen the whole identity model exists for.</td>
 </tr>
 <tr>
-<td>☐</td>
+<td>◐</td>
 <td>25 Aug</td>
-<td>Dev</td>
+<td>Dev - VR</td>
 <td>RBAC</td>
 <td><code>A13</code> <strong>Role→permission matrix</strong> — bulk toggle, inherited vs explicit, <strong>diff before save</strong></td>
 <td>H</td>
@@ -3851,9 +3851,49 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>Provenance is the feature. Merged across all three repos — see session log 2026-09-16.</td>
 </tr>
 <tr>
+<td>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>☐</td>
 <td>26 Aug</td>
 <td>Dev</td>
+<td>Identity</td>
+<td><code>A15</code> <strong>Parent/sub-tenant hierarchy</strong> — parent link, <code>IncludesDescendants</code>, aggregated read for parent admins</td>
+<td>H</td>
+<td>4</td>
+<td>Test all three directions. The sibling one ships broken.</td>
+</tr>
+<tr>
+<td>◐</td>
+<td>26 Aug</td>
+<td>Dev -VR</td>
+<td>Auth</td>
+<td><code>A16</code> <strong>MFA enrolment</strong> — TOTP enrol, verify, recovery codes; <strong>mandatory for admin roles</strong></td>
+<td>H</td>
+<td>4</td>
+<td>Backend has <code>MfaEnabled</code>. Policy is per role, per scope.</td>
+</tr>
+<tr>
+<td>=======</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>◐</td>
+<td>26 Aug</td>
+<td>Dev - AG</td>
 <td>Identity</td>
 <td><code>A15</code> <strong>Parent/sub-tenant hierarchy</strong> — parent link, <code>IncludesDescendants</code>, aggregated read for parent admins</td>
 <td>H</td>
@@ -3869,6 +3909,16 @@ assumption on day ten; a one-week loop finds it on day four, with five weeks lef
 <td>H</td>
 <td>4</td>
 <td>Backend has <code>MfaEnabled</code>. Policy is per role, per scope.</td>
+</tr>
+<tr>
+<td>&gt;&gt;&gt;&gt;&gt;&gt;&gt; 36ea42c691872a1944eeee7561ed87def90089cb</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td>◐</td>
@@ -5812,6 +5862,7 @@ solve, in <a href="../IDENTITY-AND-SCOPE/#why-branch-and-scope-path-travel-as-he
 <li><code>AssignUserRoleAsync</code> gained <code>scopePath</code> (industry/unit assignment) and is now <strong>idempotent</strong> —
   it previously wrote a duplicate row on every repeat.</li>
 <li><code>A9</code> <strong>Tenant &amp; company chooser</strong>: Built <code>TenantChooser</code> and <code>ChooseContextPage</code> (<code>/choose-context</code>). Single-tenant membership automatically bypasses the chooser; multi-tenant membership presents enterprise directory with search filtering, brand monograms, company drilldown selection, keyboard navigation, and full query cache clearing on switch. Tested via 13 unit tests in <code>useTenantChooser.test.tsx</code>, 12 unit tests in <code>TenantChooser.test.tsx</code>, and 4 unit tests in <code>useLogin.test.ts</code>.</li>
+<li><code>A10</code> <strong>Roles UI &amp; Guarded Deletion</strong>: Built full role management in <code>apps/web/src/features/rbac/</code> (<code>RoleList</code>, <code>RoleFormDialog</code>, <code>DeleteRoleDialog</code>, <code>RoleDetailPage</code>) with scope badges, dynamic feature catalog mapping, cloning, and guarded deletion when assigned. Backed by <code>al.master</code> role CRUD endpoints, route rules, and atomic cascading revocation. Verified across 418 backend unit tests and 12 frontend vitest tests.</li>
 </ul>
 <p><strong>Environment, if starting cold:</strong></p>
 <pre><code class="language-powershell">.\scripts\set-dev-secrets.ps1                 # once per machine
