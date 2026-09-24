@@ -294,7 +294,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ◐ | 27 Aug | Dev - VR | Auth | `A19` **Session management UI** — active sessions, device, last seen, revoke; revoke-others after password change | M | 4 | |
 | ☐ | 27 Aug | Dev | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
 | ☐ | 28 Aug | Dev | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
-| ◐ | 28 Aug | Dev - AG | QA | `A20` **Access test matrix** — four Ace users × five scope levels × two applications, asserted end to end | H | 4 | The week's delivery. A suite, not a checklist. |
+| ☐ | 28 Aug | Dev | QA | `A20` **Access test matrix** — four Ace users × five scope levels × two applications, asserted end to end | H | 4 | The week's delivery. A suite, not a checklist. |
 | ☐ | 28 Aug | Dev | Docs | `A21` **Identity GUIDE.md** + reconcile [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md) with what was built | L | 3 | |
 
 ### W3 — Tenancy, ingestion & form builder · 31 Aug – 4 Sep
@@ -303,7 +303,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 
 | ☐ | Date | Dev | Module | Task & subtasks | Cx | Hrs | Comments |
 |---|---|---|---|---|---|---|---|
-| ☐ | 31 Aug | Dev | Tenancy | `T2` **Tenant provisioning wizard** — details, plan, quota, admin user, review; show `DesiredVersion`/`AppliedVersion` | H | 4 | Provisioning is async and versioned. Not a spinner. |
+| ◐ | 31 Aug | Dev -AG | Tenancy | `T2` **Tenant provisioning wizard** — details, plan, quota, admin user, review; show `DesiredVersion`/`AppliedVersion` | H | 4 | Provisioning is async and versioned. Not a spinner. |
 | ☐ | 31 Aug | Dev | Tenancy | `T3` **Company onboarding (UDF-driven)** — render from `GET /udf/forms/master/Company`; industry reveals fields; `split()` | M | 4 | Do **not** hand-code the static half. |
 | ☐ | 31 Aug | Dev | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. |
 | ☐ | 1 Sep | Dev | Tenancy | `T4` **Branch, industry & unit management** — CRUD; several industries per branch; unit tree | M | 4 | Depends on `T1`. |
