@@ -287,14 +287,14 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☑ | 25 Aug | Dev - VR | Identity | `A12` **Membership management UI** — grant access at any level, for named applications, with validity dates | H | 4 | The screen the whole identity model exists for. |
 | ◐ | 25 Aug | Dev - VR | RBAC | `A13` **Role→permission matrix** — bulk toggle, inherited vs explicit, **diff before save** | H | 4 | A matrix saved blind is how privilege creeps. |
 | ☑ | 25 Aug | Dev - RS | RBAC | `A14` **Effective-permission preview** — pick a user and a scope; see what they can do and *which grant said so* | H | 4 | Provenance is the feature. Merged across all three repos — see session log 2026-09-16. |
-| ◐ | 26 Aug | Dev - AG  | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
+| ☑ | 26 Aug | Dev - AG  | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
 | ◐ | 26 Aug | Dev - VR | Auth | `A16` **MFA enrolment** — TOTP enrol, verify, recovery codes; **mandatory for admin roles** | H | 4 | Backend has `MfaEnabled`. Policy is per role, per scope. |
-| ◐ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | |
+| ☑ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | Merged to `development` in both `Carbon-Atlas-Services` and `Carbon-atlas-webapp`. |
 | ◐ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
 | ◐ | 27 Aug | Dev - VR | Auth | `A19` **Session management UI** — active sessions, device, last seen, revoke; revoke-others after password change | M | 4 | |
 | ◐ | 27 Aug | Dev - VR | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
 | ◐ | 28 Aug | Dev - VR | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
-| ☐ | 28 Aug | Dev | QA | `A20` **Access test matrix** — four Ace users × five scope levels × two applications, asserted end to end | H | 4 | The week's delivery. A suite, not a checklist. |
+| ◐ | 28 Aug | Dev - AG | QA | `A20` **Access test matrix** — four Ace users × five scope levels × two applications, asserted end to end | H | 4 | The week's delivery. A suite, not a checklist. |
 | ☐ | 28 Aug | Dev | Docs | `A21` **Identity GUIDE.md** + reconcile [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md) with what was built | L | 3 | |
 
 ### W3 — Tenancy, ingestion & form builder · 31 Aug – 4 Sep
