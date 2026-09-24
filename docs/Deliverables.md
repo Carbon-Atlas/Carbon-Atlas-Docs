@@ -292,8 +292,8 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ◐ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | |
 | ◐ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
 | ◐ | 27 Aug | Dev - VR | Auth | `A19` **Session management UI** — active sessions, device, last seen, revoke; revoke-others after password change | M | 4 | |
-| ☐ | 27 Aug | Dev | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
-| ☐ | 28 Aug | Dev | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
+| ◐ | 27 Aug | Dev - VR | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
+| ◐ | 28 Aug | Dev - VR | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
 | ☐ | 28 Aug | Dev | QA | `A20` **Access test matrix** — four Ace users × five scope levels × two applications, asserted end to end | H | 4 | The week's delivery. A suite, not a checklist. |
 | ☐ | 28 Aug | Dev | Docs | `A21` **Identity GUIDE.md** + reconcile [IDENTITY-AND-SCOPE.md](./IDENTITY-AND-SCOPE.md) with what was built | L | 3 | |
 
