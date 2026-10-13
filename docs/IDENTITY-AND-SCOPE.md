@@ -284,11 +284,37 @@ Support staff will need to see a customer's data. Two ways to arrange it:
 | | |
 |---|---|
 | A standing grant into every tenant | Invisible in the audit trail — support activity is indistinguishable from the customer's own. |
-| **A distinct, time-boxed, audited grant type** ✅ | `grantType = Support`, with `validUntil` required, a reason recorded at creation, every action tagged, and a persistent banner while it is active. |
+| **A distinct, time-boxed, audited session** ✅ | A support engineer is let into one tenant, for a stated reason, until a stated time, credentialed by a short-lived API key, and every write they make is tagged with the session and reason. |
 
-The second costs a column and an afternoon. The first costs the ability to answer "who looked at
-this record" — which is the question asked after an incident, and the one a customer contract
-usually requires an answer to.
+The second costs the ability to answer "who looked at this record" — the question asked after an
+incident, and the one a customer contract usually requires an answer to.
+
+**As implemented (A-18).** It is a two-step flow in `al.master`, not a browser login, and it is
+separate from ordinary RBAC — it never widens what the target tenant's subscription allows.
+
+- **Grant then session.** `POST /support/grants` creates a **Pending** `SupportGrant`
+  (`supportUserId`, `targetTenantId`, `reason`, `expiresAtUtc`). `POST /support/grants/{id}/activate`
+  creates a `SupportSession` and mints an API key bound to it — only the key's SHA-256 hash is
+  stored, the raw key is returned once. **Key = pointer, session = truth:** the session, not the
+  key, decides whether access is still valid, so permissions/expiry/status change without reissuing.
+- **Who may run it.** The operator routes require `SUPPORT:GRANT` **and** a caller from the platform
+  tenant (`SupportAccessGate`). The second check is not optional: a tenant owner satisfies every
+  permission expression, so the permission alone would let any tenant's owner grant themselves into
+  another tenant. The recipient (`supportUserId`) must also be platform staff.
+- **Reason required; expiry corrected, never rejected.** A missing reason is a 400. A missing or
+  past expiry defaults to **1 hour**; anything over the **8-hour** ceiling is clamped to 8 hours.
+- **Revoke, never delete.** `POST /support/sessions/{id}/revoke` ends an active session and
+  deactivates its key; `POST /support/grants/{id}/revoke` revokes a still-Pending grant. Rows are
+  kept, so the trail survives.
+- **The customer can see it.** `GET /support/tenant-sessions` (`TENANT:READ`) lists who accessed their
+  tenant, why, and until when — tenant taken from the token, never a parameter. Gated on `TENANT:READ`,
+  not strictly the tenant owner (al.master carries no owner signal on the token to check).
+- **Audit.** Every write under a session is stamped centrally (`AuditSaveChangesInterceptor`) with
+  `IsSupportAccess`, `SupportSessionId`, `SupportReason`, `SupportTargetTenantId` from the
+  server-derived `SupportContext` — built from the resolved session, never a client header.
+
+Not built, deliberately: a persistent "support access active" banner in the web app (the backend
+exposes the state; no banner is mounted), second-person approval, and operator list/search routes.
 
 ---
 

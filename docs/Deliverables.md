@@ -98,7 +98,7 @@ the remaining work is **web UI over existing APIs**.
 | UDF **data plane** — `custom_fields` jsonb + GIN on company and branch, fail-closed save interceptor, validation over HTTP for services with no document store | ✅ built | `al.master`, `al.udf` |
 | UDF **definition versioning** — every edit archives the outgoing revision; values keep the revision they were captured under and are still validated by it | ✅ built | `al.net.udf` |
 | UDF **consumed by a screen** — no React screen renders a resolved form; `CompanyOnboardingPage` still hand-codes from `@/mocks/mockForms` | ❌ missing | task `T3` |
-| UDF **form builder wired to UDF** — `/form-builder` is 25 files of localStorage with zero UDF references | ❌ missing | task `D1a` |
+| UDF **form builder wired to UDF** — target + static/custom catalogue, drag ordering, colSpan, form-level per-application visibility, diffed save to `/udf/views` | ✅ built | task `D1a` |
 | UDF for **list/table views** (columns per scope) | ❌ missing | task `D2` |
 | Rules engine | ✅ built | `al.net.rules`, `al.rules` |
 | Workflow engine | ✅ built | `al.net.workflow`, `al.workflow` |
@@ -290,7 +290,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ☑ | 26 Aug | Dev - AG  | Identity | `A15` **Parent/sub-tenant hierarchy** — parent link, `IncludesDescendants`, aggregated read for parent admins | H | 4 | Test all three directions. The sibling one ships broken. |
 | ◐ | 26 Aug | Dev - VR | Auth | `A16` **MFA enrolment** — TOTP enrol, verify, recovery codes; **mandatory for admin roles** | H | 4 | Backend has `MfaEnabled`. Policy is per role, per scope. |
 | ☑ | 26 Aug | Dev - RS | Identity | `A17` **Users management** — invite, deactivate, resend, view a user's grants across tenants | M | 4 | Merged to `development` in both `Carbon-Atlas-Services` and `Carbon-atlas-webapp`. |
-| ◐ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
+| ☑ | 27 Aug | Dev - AG | Identity | `A18` **Support/impersonation access** — explicit, time-boxed, audited grant type; persistent banner while active | H | 4 | Support access that looks like normal access cannot be investigated afterwards. |
 | ◐ | 27 Aug | Dev - VR | Auth | `A19` **Session management UI** — active sessions, device, last seen, revoke; revoke-others after password change | M | 4 | |
 | ◐ | 27 Aug | Dev - VR | Tenancy | `T1` **UNIT scope (backend)** — entity, `IUdfScoped`, specificity 16, every resolver, migrations, tests | H | 4 | **Critical path.** Every resolver in one change. |
 | ◐ | 28 Aug | Dev - VR | Tenancy | `T1b` **UNIT wiring** — `al.master` endpoints, permission entries, `al.udf` catalogue | M | 3 | Finish before `C4` or `D3` start. |
@@ -305,7 +305,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 |---|---|---|---|---|---|---|---|
 | ◐ | 31 Aug | Dev -AG | Tenancy | `T2` **Tenant provisioning wizard** — details, plan, quota, admin user, review; show `DesiredVersion`/`AppliedVersion` | H | 4 | Provisioning is async and versioned. Not a spinner. |
 | ◐ | 31 Aug | Dev -  VR | Tenancy | `T3` **Company onboarding (UDF-driven)** — render from `GET /udf/forms/master/Company`; industry reveals fields; `split()` | M | 4 | Do **not** hand-code the static half. |
-| ◐ | 31 Aug | Dev - AG | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. |
+| ☑ | 31 Aug | Dev - AG | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. Per-application visibility is form-level; per-field overrides deferred. |
 | ☐ | 1 Sep | Dev | Tenancy | `T4` **Branch, industry & unit management** — CRUD; several industries per branch; unit tree | M | 4 | Depends on `T1`. |
 | ☐ | 1 Sep | Dev | Tenancy | `T5` **Facility / site model** — sites under a branch, with geography, capacity, grid connection | M | 4 | Feeds the emission and offset engines. |
 | ☐ | 1 Sep | Dev | UDF | `D1b` **Form builder — labels & i18n** — per-scope override, translation editor with missing-language indicator | H | 4 | Overrides overlay, never substitute. Use `HasTranslation`. |
