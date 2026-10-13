@@ -308,7 +308,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 | ◐ | 31 Aug | Dev - AG | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. Per-application visibility is form-level; per-field overrides deferred. |
 | ☐ | 1 Sep | Dev | Tenancy | `T4` **Branch, industry & unit management** — CRUD; several industries per branch; unit tree | M | 4 | Depends on `T1`. |
 | ◐ | 1 Sep | Dev - VR | Tenancy | `T5` **Facility / site model** — sites under a branch, with geography, capacity, grid connection | M | 4 | Feeds the emission and offset engines. |
-| ☐ | 1 Sep | Dev | UDF | `D1b` **Form builder — labels & i18n** — per-scope override, translation editor with missing-language indicator | H | 4 | Overrides overlay, never substitute. Use `HasTranslation`. |
+| ◐ | 1 Sep | Dev - AG | UDF | `D1b` **Form builder — labels & i18n** — per-scope override, translation editor with missing-language indicator | H | 4 | Overrides overlay, never substitute. Use `HasTranslation`. |
 | ☐ | 2 Sep | Dev | Tenancy | `T6` **Provisioning status console** — snapshot state, retry a failed step, name the step that failed | M | 4 | |
 | ☐ | 2 Sep | Dev | Ingestion | `T7` **Data collection forms** — Scope 1/2/3 activity entry, UDF-driven, per site | H | 4 | Bulk upload already exists. |
 | ☐ | 2 Sep | Dev | UDF | `D1c` **Form builder — sections & conditions** — section CRUD, step flag, condition builder, **live preview using the real renderer** | H | 4 | A preview that diverges from the renderer is worse than none. |
