@@ -305,7 +305,7 @@ Task prefixes: `F` foundation · `A` auth & access · `T` tenancy & ingestion ·
 |---|---|---|---|---|---|---|---|
 | ◐ | 31 Aug | Dev -AG | Tenancy | `T2` **Tenant provisioning wizard** — details, plan, quota, admin user, review; show `DesiredVersion`/`AppliedVersion` | H | 4 | Provisioning is async and versioned. Not a spinner. |
 | ◐ | 31 Aug | Dev -  VR | Tenancy | `T3` **Company onboarding (UDF-driven)** — render from `GET /udf/forms/master/Company`; industry reveals fields; `split()` | M | 4 | Do **not** hand-code the static half. |
-| ☑ | 31 Aug | Dev - AG | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. Per-application visibility is form-level; per-field overrides deferred. |
+| ◐ | 31 Aug | Dev - AG | UDF | `D1a` **Form builder — placement** — static catalogue + custom definitions, drag to order, colspan, per-application visibility | H | 4 | Mandatory columns cannot be hidden; explain rather than disable. Per-application visibility is form-level; per-field overrides deferred. |
 | ☐ | 1 Sep | Dev | Tenancy | `T4` **Branch, industry & unit management** — CRUD; several industries per branch; unit tree | M | 4 | Depends on `T1`. |
 | ◐ | 1 Sep | Dev - VR | Tenancy | `T5` **Facility / site model** — sites under a branch, with geography, capacity, grid connection | M | 4 | Feeds the emission and offset engines. |
 | ☐ | 1 Sep | Dev | UDF | `D1b` **Form builder — labels & i18n** — per-scope override, translation editor with missing-language indicator | H | 4 | Overrides overlay, never substitute. Use `HasTranslation`. |
